@@ -1,0 +1,1241 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>KV — Revenue Infrastructure</title>
+    <meta name="description" content="Email automation infrastructure for supplement and e-commerce brands. 15-20% cart recovery. 25-30% repeat buyer increase. Deployed in 48 hours.">
+    <meta name="keywords" content="email automation, cart recovery, conversion optimization, Gen Z marketing, supplement email marketing, ecommerce automation">
+    <meta property="og:title" content="KV — Revenue Infrastructure">
+    <meta property="og:description" content="Email automation infrastructure that recovers 15-20% of abandoned revenue. Built by an 18-year-old who speaks your customers' language.">
+    <meta property="og:type" content="website">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        /* DESIGN TOKENS */
+        :root {
+            /* Colors */
+            --bg-0: #050607;
+            --bg-1: #0A0C0E;
+            --bg-2: #0F1215;
+            --line: rgba(255, 255, 255, 0.08);
+            --line-strong: rgba(255, 255, 255, 0.14);
+            --text-0: rgba(255, 255, 255, 0.92);
+            --text-1: rgba(255, 255, 255, 0.72);
+            --text-2: rgba(255, 255, 255, 0.52);
+            --shadow: rgba(0, 0, 0, 0.65);
+            
+            /* Accent - Emerald for "control" vibe */
+            --accent: #1BE7A8;
+            
+            /* Radius */
+            --radius-card: 12px;
+            --radius-modal: 16px;
+            --radius-chip: 999px;
+            
+            /* Motion */
+            --ease: cubic-bezier(0.22, 1, 0.36, 1);
+            --duration: 240ms;
+        }
+
+        /* RESET & BASE */
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+            background: radial-gradient(1200px 700px at 18% 12%, rgba(27, 231, 168, 0.08), transparent 60%),
+                        radial-gradient(900px 520px at 82% 18%, rgba(255, 255, 255, 0.05), transparent 62%),
+                        var(--bg-0);
+            color: var(--text-1);
+            font-size: 16px;
+            line-height: 1.6;
+            font-weight: 400;
+            -webkit-font-smoothing: antialiased;
+            -moz-osx-font-smoothing: grayscale;
+            overflow-x: hidden;
+        }
+
+        html {
+            scroll-behavior: smooth;
+        }
+
+        @media (prefers-reduced-motion: reduce) {
+            html { scroll-behavior: auto; }
+            *, *::before, *::after {
+                animation-duration: 0.001ms !important;
+                animation-iteration-count: 1 !important;
+                transition-duration: 0.001ms !important;
+            }
+        }
+
+        /* NOISE TEXTURE */
+        body::before {
+            content: '';
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            opacity: 0.022;
+            pointer-events: none;
+            z-index: 1;
+            background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 400 400' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noiseFilter'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noiseFilter)'/%3E%3C/svg%3E");
+        }
+
+        /* VIGNETTE */
+        body::after {
+            content: '';
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: radial-gradient(ellipse at center, transparent 0%, rgba(5, 6, 7, 0.4) 100%);
+            pointer-events: none;
+            z-index: 1;
+        }
+
+        .content-wrapper {
+            position: relative;
+            z-index: 2;
+        }
+
+        /* CONTAINER */
+        .container {
+            max-width: 1180px;
+            margin: 0 auto;
+            padding: 0 32px;
+        }
+
+        /* TOPBAR */
+        .topbar {
+            position: sticky;
+            top: 0;
+            z-index: 100;
+            padding: 24px 0;
+            transition: transform var(--duration) var(--ease), border-color var(--duration) var(--ease), box-shadow var(--duration) var(--ease);
+        }
+
+        .topbar.scrolled {
+            background: rgba(5, 6, 7, 0.7);
+            backdrop-filter: blur(12px);
+            border-bottom: 1px solid var(--line);
+        }
+
+        .topbar-content {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            gap: 48px;
+        }
+
+        .wordmark {
+            font-size: 14px;
+            font-weight: 600;
+            letter-spacing: 0.16em;
+            text-transform: uppercase;
+            color: var(--text-0);
+        }
+
+        .nav {
+            display: flex;
+            gap: 40px;
+            flex: 1;
+            justify-content: center;
+        }
+
+        .nav a {
+            font-size: 12px;
+            font-weight: 500;
+            letter-spacing: 0.12em;
+            text-transform: uppercase;
+            color: var(--text-2);
+            text-decoration: none;
+            transition: color var(--duration) var(--ease);
+            position: relative;
+        }
+
+        .nav a::after {
+            content: '';
+            position: absolute;
+            bottom: -4px;
+            left: 0;
+            width: 0;
+            height: 1px;
+            background: var(--accent);
+            transition: width var(--duration) var(--ease);
+        }
+
+        .nav a:hover {
+            color: var(--text-0);
+        }
+
+        .nav a:hover::after {
+            width: 100%;
+        }
+
+        .cta-button {
+            padding: 12px 28px;
+            background: transparent;
+            border: 1px solid var(--line-strong);
+            color: var(--text-0);
+            font-size: 11px;
+            font-weight: 600;
+            letter-spacing: 0.14em;
+            text-transform: uppercase;
+            text-decoration: none;
+            border-radius: var(--radius-chip);
+            transition: transform var(--duration) var(--ease), border-color var(--duration) var(--ease), box-shadow var(--duration) var(--ease), background-color var(--duration) var(--ease), color var(--duration) var(--ease);
+            will-change: transform;
+            cursor: pointer;
+            white-space: nowrap;
+        }
+
+        .cta-button:hover {
+            border-color: var(--accent);
+            transform: translateY(-2px);
+            box-shadow: 0 4px 16px rgba(27, 231, 168, 0.15);
+        }
+
+        .cta-button.primary {
+            background: var(--accent);
+            border-color: var(--accent);
+            color: var(--bg-0);
+        }
+
+        .cta-button.primary:hover {
+            box-shadow: 0 4px 24px rgba(27, 231, 168, 0.3);
+        }
+
+        /* HERO */
+        .hero {
+            padding: 160px 0 120px;
+            min-height: 85vh;
+            display: flex;
+            align-items: center;
+        }
+
+        .hero-content {
+            max-width: 880px;
+        }
+
+        .hero-label {
+            font-size: 11px;
+            font-weight: 600;
+            letter-spacing: 0.16em;
+            text-transform: uppercase;
+            color: var(--accent);
+            margin-bottom: 32px;
+            display: inline-block;
+        }
+
+        .hero h1 {
+            font-size: clamp(44px, 7vw, 64px);
+            font-weight: 600;
+            letter-spacing: -0.02em;
+            color: var(--text-0);
+            line-height: 1.1;
+            margin-bottom: 32px;
+        }
+
+        .hero-subtext {
+            font-size: 18px;
+            font-weight: 400;
+            color: var(--text-2);
+            max-width: 640px;
+            margin-bottom: 48px;
+            line-height: 1.7;
+        }
+
+        .hero-actions {
+            display: flex;
+            gap: 16px;
+            flex-wrap: wrap;
+        }
+
+        /* PROOF STRIP */
+        .proof-strip {
+            padding: 80px 0;
+            border-top: 1px solid var(--line);
+            border-bottom: 1px solid var(--line);
+        }
+
+        .stats {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 0;
+        }
+
+        .stat {
+            padding: 0 48px;
+            border-right: 1px solid var(--line);
+            text-align: center;
+        }
+
+        .stat:last-child {
+            border-right: none;
+        }
+
+        .stat-value {
+            font-size: 36px;
+            font-weight: 600;
+            color: var(--text-0);
+            margin-bottom: 8px;
+            letter-spacing: 0.02em;
+        }
+
+        .stat-label {
+            font-size: 11px;
+            font-weight: 500;
+            letter-spacing: 0.14em;
+            text-transform: uppercase;
+            color: var(--text-2);
+        }
+
+        /* SECTION HEADER */
+        .section {
+            padding: 96px 0;
+        }
+
+        .section-header {
+            margin-bottom: 64px;
+        }
+
+        .section-label {
+            font-size: 11px;
+            font-weight: 600;
+            letter-spacing: 0.16em;
+            text-transform: uppercase;
+            color: var(--accent);
+            margin-bottom: 16px;
+        }
+
+        .section-title {
+            font-size: clamp(28px, 5vw, 36px);
+            font-weight: 600;
+            letter-spacing: 0.02em;
+            color: var(--text-0);
+            line-height: 1.2;
+        }
+
+        /* RESULTS BOX */
+        .results-box {
+            max-width: 840px;
+            margin: 0 auto 64px;
+            text-align: center;
+            background: var(--bg-1);
+            border: 1px solid var(--line);
+            border-radius: var(--radius-card);
+            padding: 48px 32px;
+        }
+
+        .results-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+            gap: 40px;
+            margin-bottom: 40px;
+        }
+
+        .result-item {
+            padding: 0;
+        }
+
+        .result-value {
+            font-size: 36px;
+            font-weight: 600;
+            color: var(--accent);
+            margin-bottom: 12px;
+            letter-spacing: 0.02em;
+        }
+
+        .result-label {
+            font-size: 12px;
+            color: var(--text-2);
+            letter-spacing: 0.08em;
+            text-transform: uppercase;
+            line-height: 1.5;
+        }
+
+        .results-description {
+            font-size: 15px;
+            color: var(--text-1);
+            line-height: 1.7;
+            max-width: 640px;
+            margin: 0 auto;
+            padding-top: 40px;
+            border-top: 1px solid var(--line);
+        }
+
+        /* DOSSIER CARDS */
+        .modules-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(340px, 1fr));
+            gap: 24px;
+        }
+
+        .dossier-card {
+            background: var(--bg-1);
+            border: 1px solid var(--line);
+            border-radius: var(--radius-card);
+            padding: 32px;
+            position: relative;
+            transition: all var(--duration) var(--ease);
+            overflow: hidden;
+        }
+
+        .dossier-card::before {
+            content: '';
+            position: absolute;
+            left: 0;
+            top: 0;
+            width: 2px;
+            height: 100%;
+            background: var(--accent);
+            transform: scaleY(0);
+            transform-origin: top;
+            transition: transform var(--duration) var(--ease);
+        }
+
+        .dossier-card:hover {
+            border-color: var(--line-strong);
+            transform: translateY(-2px);
+            box-shadow: 0 8px 32px var(--shadow);
+        }
+
+        .dossier-card:hover::before {
+            transform: scaleY(1);
+        }
+
+        .dossier-label {
+            font-size: 11px;
+            font-weight: 600;
+            letter-spacing: 0.14em;
+            text-transform: uppercase;
+            color: var(--text-2);
+            margin-bottom: 16px;
+        }
+
+        .dossier-title {
+            font-size: 20px;
+            font-weight: 600;
+            color: var(--text-0);
+            margin-bottom: 16px;
+            line-height: 1.3;
+        }
+
+        .dossier-price {
+            font-size: 28px;
+            font-weight: 600;
+            color: var(--accent);
+            margin-bottom: 20px;
+        }
+
+        .dossier-bullets {
+            list-style: none;
+        }
+
+        .dossier-bullets li {
+            font-size: 14px;
+            color: var(--text-1);
+            margin-bottom: 10px;
+            padding-left: 20px;
+            position: relative;
+        }
+
+        .dossier-bullets li::before {
+            content: '—';
+            position: absolute;
+            left: 0;
+            color: var(--text-2);
+        }
+
+        .dossier-meta {
+            margin-top: 24px;
+            padding-top: 20px;
+            border-top: 1px solid var(--line);
+            font-size: 12px;
+            color: var(--text-2);
+            letter-spacing: 0.04em;
+        }
+
+        .badge {
+            position: absolute;
+            top: -1px;
+            right: 24px;
+            background: var(--accent);
+            color: var(--bg-0);
+            padding: 6px 16px;
+            font-size: 10px;
+            font-weight: 600;
+            letter-spacing: 0.12em;
+            text-transform: uppercase;
+            border-radius: 0 0 8px 8px;
+        }
+
+        /* OPERATING PRINCIPLES */
+        .principles {
+            background: var(--bg-1);
+        }
+
+        .principles-content {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 80px;
+            align-items: start;
+        }
+
+        .principles-text h3 {
+            font-size: 24px;
+            font-weight: 600;
+            color: var(--text-0);
+            margin-bottom: 24px;
+            letter-spacing: 0.02em;
+        }
+
+        .principles-text p {
+            font-size: 16px;
+            color: var(--text-1);
+            line-height: 1.8;
+            margin-bottom: 16px;
+        }
+
+        .principles-list {
+            list-style: none;
+        }
+
+        .principles-list li {
+            padding: 24px 0;
+            border-bottom: 1px solid var(--line);
+        }
+
+        .principles-list li:first-child {
+            border-top: 1px solid var(--line);
+        }
+
+        .principle-title {
+            font-size: 14px;
+            font-weight: 600;
+            letter-spacing: 0.08em;
+            text-transform: uppercase;
+            color: var(--text-0);
+            margin-bottom: 8px;
+        }
+
+        .principle-desc {
+            font-size: 14px;
+            color: var(--text-2);
+            line-height: 1.6;
+        }
+
+        /* ACCESS FORM */
+        .access-form {
+            max-width: 640px;
+            margin: 0 auto;
+            background: var(--bg-1);
+            border: 1px solid var(--line);
+            border-radius: var(--radius-modal);
+            padding: 48px;
+        }
+
+        .form-group {
+            margin-bottom: 24px;
+        }
+
+        .form-label {
+            display: block;
+            font-size: 11px;
+            font-weight: 600;
+            letter-spacing: 0.14em;
+            text-transform: uppercase;
+            color: var(--text-2);
+            margin-bottom: 12px;
+        }
+
+        .form-input,
+        .form-textarea {
+            width: 100%;
+            background: var(--bg-2);
+            border: 1px solid var(--line);
+            color: var(--text-0);
+            font-family: 'Inter', sans-serif;
+            font-size: 15px;
+            padding: 14px 16px;
+            border-radius: 8px;
+            transition: all var(--duration) var(--ease);
+        }
+
+        .form-input:focus,
+        .form-textarea:focus {
+            outline: none;
+            border-color: var(--accent);
+            box-shadow: 0 0 0 3px rgba(27, 231, 168, 0.1);
+        }
+
+        .form-textarea {
+            resize: vertical;
+            min-height: 120px;
+        }
+
+        .form-submit {
+            width: 100%;
+            padding: 16px;
+            background: var(--accent);
+            border: none;
+            color: var(--bg-0);
+            font-size: 12px;
+            font-weight: 600;
+            letter-spacing: 0.14em;
+            text-transform: uppercase;
+            border-radius: var(--radius-chip);
+            cursor: pointer;
+            transition: all var(--duration) var(--ease);
+        }
+
+        .form-submit:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 24px rgba(27, 231, 168, 0.3);
+        }
+
+        /* FOOTER */
+        footer {
+            padding: 64px 0 32px;
+            border-top: 1px solid var(--line);
+        }
+
+        .footer-content {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 32px;
+        }
+
+        .footer-wordmark {
+            font-size: 12px;
+            font-weight: 600;
+            letter-spacing: 0.16em;
+            text-transform: uppercase;
+            color: var(--text-2);
+        }
+
+        .footer-links {
+            display: flex;
+            gap: 32px;
+        }
+
+        .footer-links a {
+            font-size: 11px;
+            font-weight: 500;
+            letter-spacing: 0.12em;
+            text-transform: uppercase;
+            color: var(--text-2);
+            text-decoration: none;
+            transition: color var(--duration) var(--ease);
+        }
+
+        .footer-links a:hover {
+            color: var(--accent);
+        }
+
+        .footer-bottom {
+            text-align: center;
+            font-size: 11px;
+            color: var(--text-2);
+            letter-spacing: 0.08em;
+        }
+
+        /* NOTIFICATION MODAL */
+        .notification-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(5, 6, 7, 0.85);
+            backdrop-filter: blur(8px);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 1000;
+            opacity: 0;
+            pointer-events: none;
+            transition: opacity var(--duration) var(--ease);
+        }
+
+        .notification-overlay.active {
+            opacity: 1;
+            pointer-events: all;
+        }
+
+        .notification-modal {
+            background: var(--bg-1);
+            border: 1px solid var(--line-strong);
+            border-radius: var(--radius-modal);
+            padding: 48px;
+            max-width: 480px;
+            width: 90%;
+            text-align: center;
+            transform: translateY(24px);
+            transition: transform var(--duration) var(--ease);
+        }
+
+        .notification-overlay.active .notification-modal {
+            transform: translateY(0);
+        }
+
+        .notification-icon {
+            width: 64px;
+            height: 64px;
+            margin: 0 auto 24px;
+            border-radius: 50%;
+            background: rgba(27, 231, 168, 0.1);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 32px;
+        }
+
+        .notification-title {
+            font-size: 24px;
+            font-weight: 600;
+            letter-spacing: 0.04em;
+            text-transform: uppercase;
+            color: var(--text-0);
+            margin-bottom: 16px;
+        }
+
+        .notification-message {
+            font-size: 15px;
+            color: var(--text-1);
+            line-height: 1.6;
+            margin-bottom: 32px;
+        }
+
+        .notification-button {
+            padding: 14px 32px;
+            background: var(--accent);
+            border: none;
+            color: var(--bg-0);
+            font-size: 12px;
+            font-weight: 600;
+            letter-spacing: 0.14em;
+            text-transform: uppercase;
+            border-radius: var(--radius-chip);
+            cursor: pointer;
+            transition: all var(--duration) var(--ease);
+        }
+
+        .notification-button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 24px rgba(27, 231, 168, 0.3);
+        }
+
+        /* RESPONSIVE */
+        @media (max-width: 968px) {
+            .container {
+                padding: 0 24px;
+            }
+
+            .nav {
+                display: none;
+            }
+
+            .topbar-content {
+                gap: 24px;
+            }
+
+            .hero {
+                padding: 120px 0 80px;
+            }
+
+            .stats {
+                grid-template-columns: 1fr;
+                gap: 32px;
+            }
+
+            .stat {
+                border-right: none;
+                border-bottom: 1px solid var(--line);
+                padding: 0 0 32px 0;
+            }
+
+            .stat:last-child {
+                border-bottom: none;
+                padding-bottom: 0;
+            }
+
+            .section {
+                padding: 64px 0;
+            }
+
+            .results-grid {
+                grid-template-columns: 1fr;
+                gap: 32px;
+            }
+
+            .modules-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .principles-content {
+                grid-template-columns: 1fr;
+                gap: 48px;
+            }
+
+            .access-form {
+                padding: 32px 24px;
+            }
+
+            .footer-content {
+                flex-direction: column;
+                gap: 24px;
+                text-align: center;
+            }
+
+            .footer-links {
+                flex-direction: column;
+                gap: 16px;
+            }
+        }
+
+        /* ANIMATIONS */
+        @keyframes fadeInUp {
+            from {
+                opacity: 0;
+                transform: translateY(24px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .fade-in {
+            animation: fadeInUp 0.8s var(--ease) both;
+        }
+
+        .fade-in-delay-1 {
+            animation-delay: 0.1s;
+        }
+
+        .fade-in-delay-2 {
+            animation-delay: 0.2s;
+        }
+
+        .fade-in-delay-3 {
+            animation-delay: 0.3s;
+        }
+    </style>
+</head>
+<body>
+    <div class="content-wrapper">
+        <!-- TOPBAR -->
+        <nav class="topbar" id="topbar">
+            <div class="container">
+                <div class="topbar-content">
+                    <div class="wordmark">KV</div>
+                    <div class="nav">
+                        <a href="#intel">Intel</a>
+                        <a href="#systems">Systems</a>
+                        <a href="#contact">Contact</a>
+                    </div>
+                    <a href="#contact" class="cta-button">Request Access</a>
+                </div>
+            </div>
+        </nav>
+
+        <!-- HERO -->
+        <section class="hero">
+            <div class="container">
+                <div class="hero-content">
+                    <div class="hero-label fade-in">Operational</div>
+                    <h1 class="fade-in fade-in-delay-1">Your email infrastructure is hemorrhaging revenue.</h1>
+                    <p class="hero-subtext fade-in fade-in-delay-2">
+                        Most brands lose €300-500 daily to abandoned carts. Another €200-400 from zero post-purchase engagement. Gen Z conversion psychology closes those gaps. Recover 15-20% of lost revenue. Live in 48 hours.
+                    </p>
+                    <div class="hero-actions fade-in fade-in-delay-3">
+                        <a href="#systems" class="cta-button primary">View Infrastructure</a>
+                        <a href="#intel" class="cta-button">Read Brief</a>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- PROOF STRIP -->
+        <section class="proof-strip">
+            <div class="container">
+                <div class="stats">
+                    <div class="stat">
+                        <div class="stat-value">€800-1.2k</div>
+                        <div class="stat-label">Monthly Recovered / €50k Brand</div>
+                    </div>
+                    <div class="stat">
+                        <div class="stat-value">48hrs</div>
+                        <div class="stat-label">Emergency Deploy Time</div>
+                    </div>
+                    <div class="stat">
+                        <div class="stat-value">25-30%</div>
+                        <div class="stat-label">Repeat Buyer Increase</div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- SYSTEMS -->
+        <section class="section" id="systems">
+            <div class="container">
+                <div class="section-header">
+                    <div class="section-label">Revenue Infrastructure</div>
+                    <h2 class="section-title">Deployment Packages</h2>
+                </div>
+                
+                <!-- RESULTS OVERVIEW -->
+                <div class="results-box">
+                    <div class="results-grid">
+                        <div class="result-item">
+                            <div class="result-value">15-20%</div>
+                            <div class="result-label">Cart abandonment<br>recovery rate</div>
+                        </div>
+                        <div class="result-item">
+                            <div class="result-value">25-30%</div>
+                            <div class="result-label">Repeat purchase<br>rate increase</div>
+                        </div>
+                        <div class="result-item">
+                            <div class="result-value">10-14 days</div>
+                            <div class="result-label">Time to<br>positive ROI</div>
+                        </div>
+                    </div>
+                    <div class="results-description">
+                        Psychological triggers tested on Gen Z buyers. Proven frameworks built by someone who speaks their language. Zero theory. Just sequences that convert because they're designed by the demographic you're targeting.
+                    </div>
+                </div>
+
+                <!-- TIERED PACKAGES -->
+                <div class="modules-grid">
+                    <!-- EMERGENCY PROTOCOL -->
+                    <div class="dossier-card">
+                        <div class="dossier-label">Emergency Protocol</div>
+                        <h3 class="dossier-title">Cart Recovery Only</h3>
+                        <div class="dossier-price">€500</div>
+                        <ul class="dossier-bullets">
+                            <li>3-email abandonment sequence (1hr / 24hr / 72hr)</li>
+                            <li>Results-driven reminder → social proof → scarcity</li>
+                            <li>Klaviyo integration + testing</li>
+                            <li>Expected recovery: €300-500/month (€50k revenue brand)</li>
+                        </ul>
+                        <div class="dossier-meta">Deploy: 48 hours · Stop the bleeding</div>
+                    </div>
+
+                    <!-- FOUNDATION SYSTEM -->
+                    <div class="dossier-card">
+                        <div class="dossier-label">Foundation</div>
+                        <h3 class="dossier-title">Core Infrastructure</h3>
+                        <div class="dossier-price">€1,600</div>
+                        <ul class="dossier-bullets">
+                            <li>Cart abandonment (3 emails)</li>
+                            <li>Welcome series (4 emails)</li>
+                            <li>Post-purchase flow (3 emails)</li>
+                            <li>Browse abandonment (2 emails)</li>
+                            <li>Complete psychological framework</li>
+                        </ul>
+                        <div class="dossier-meta">Deploy: 5 days · 80% of automated email revenue</div>
+                    </div>
+
+                    <!-- TOTAL CONTROL -->
+                    <div class="dossier-card" style="border-color: var(--accent);">
+                        <div class="badge">Recommended</div>
+                        <div class="dossier-label">Total Control</div>
+                        <h3 class="dossier-title">Complete Automation</h3>
+                        <div class="dossier-price">€2,400</div>
+                        <ul class="dossier-bullets">
+                            <li>Everything in Foundation</li>
+                            <li>Win-back campaign (30/60/90 day)</li>
+                            <li>VIP loyalty system (milestones, early access)</li>
+                            <li>Product launch sequence</li>
+                            <li>Zero-touch revenue system</li>
+                        </ul>
+                        <div class="dossier-meta">Deploy: 7 days · €50k+ brands · Save €800 vs individual</div>
+                    </div>
+                </div>
+
+                <!-- OPERATOR RETAINER -->
+                <div style="margin-top: 64px; max-width: 840px; margin-left: auto; margin-right: auto;">
+                    <div class="dossier-card">
+                        <div class="dossier-label">Ongoing Optimization</div>
+                        <h3 class="dossier-title">Systems Operator</h3>
+                        <div class="dossier-price">€600/mo</div>
+                        <ul class="dossier-bullets">
+                            <li>Monthly performance analysis + optimization</li>
+                            <li>A/B testing on underperforming sequences</li>
+                            <li>Seasonal campaign updates (Black Friday, launches)</li>
+                            <li>New sequence deployment as needed</li>
+                            <li>Priority response (6-hour turnaround)</li>
+                        </ul>
+                        <div class="dossier-meta">Add to any package · First month free with Total Control</div>
+                    </div>
+                </div>
+
+                <!-- INDIVIDUAL MODULES -->
+                <div style="margin-top: 96px;">
+                    <div class="section-header">
+                        <div class="section-label">À La Carte</div>
+                        <h2 class="section-title">Individual Sequences</h2>
+                    </div>
+                    <div class="modules-grid">
+                        <div class="dossier-card">
+                            <div class="dossier-label">Module 01</div>
+                            <h3 class="dossier-title">Cart Abandonment</h3>
+                            <div class="dossier-price">€400</div>
+                            <ul class="dossier-bullets">
+                                <li>Results-driven reminder (1 hour)</li>
+                                <li>Social proof + competition (24 hours)</li>
+                                <li>Scarcity + limited stock (3 days)</li>
+                            </ul>
+                            <div class="dossier-meta">Delivery: 3 days</div>
+                        </div>
+
+                        <div class="dossier-card">
+                            <div class="dossier-label">Module 02</div>
+                            <h3 class="dossier-title">Welcome Series</h3>
+                            <div class="dossier-price">€500</div>
+                            <ul class="dossier-bullets">
+                                <li>Brand intro + expectation setting</li>
+                                <li>Best-sellers showcase (Day 2)</li>
+                                <li>Social proof + reviews (Day 4)</li>
+                                <li>First purchase incentive (Day 7)</li>
+                            </ul>
+                            <div class="dossier-meta">Delivery: 4 days</div>
+                        </div>
+
+                        <div class="dossier-card">
+                            <div class="dossier-label">Module 03</div>
+                            <h3 class="dossier-title">Post-Purchase</h3>
+                            <div class="dossier-price">€400</div>
+                            <ul class="dossier-bullets">
+                                <li>Order confirmation + timeline</li>
+                                <li>Check-in + strategic upsell (Day 3)</li>
+                                <li>Review request + loyalty (Day 14)</li>
+                            </ul>
+                            <div class="dossier-meta">Delivery: 3 days</div>
+                        </div>
+
+                        <div class="dossier-card">
+                            <div class="dossier-label">Module 04</div>
+                            <h3 class="dossier-title">Product Launch</h3>
+                            <div class="dossier-price">€500</div>
+                            <ul class="dossier-bullets">
+                                <li>Pre-launch hype sequence (7 days)</li>
+                                <li>Launch day activation</li>
+                                <li>Post-launch follow-up + social proof</li>
+                            </ul>
+                            <div class="dossier-meta">Delivery: 4 days</div>
+                        </div>
+
+                        <div class="dossier-card">
+                            <div class="dossier-label">Module 05</div>
+                            <h3 class="dossier-title">Browse Abandonment</h3>
+                            <div class="dossier-price">€350</div>
+                            <ul class="dossier-bullets">
+                                <li>Still interested? (1 hour)</li>
+                                <li>Social proof + similar items (24 hours)</li>
+                            </ul>
+                            <div class="dossier-meta">Delivery: 2 days</div>
+                        </div>
+
+                        <div class="dossier-card">
+                            <div class="dossier-label">Module 06</div>
+                            <h3 class="dossier-title">Win-Back Campaign</h3>
+                            <div class="dossier-price">€450</div>
+                            <ul class="dossier-bullets">
+                                <li>Exclusive return offer (30 days)</li>
+                                <li>New products showcase (60 days)</li>
+                                <li>Final activation (90 days)</li>
+                            </ul>
+                            <div class="dossier-meta">Delivery: 3 days</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- OPERATING PRINCIPLES -->
+        <section class="section principles" id="intel">
+            <div class="container">
+                <div class="section-header">
+                    <div class="section-label">Intelligence Brief</div>
+                    <h2 class="section-title">Why This Works</h2>
+                </div>
+                <div class="principles-content">
+                    <div class="principles-text">
+                        <h3>Built by someone who speaks your customers' language.</h3>
+                        <p>
+                            Most email systems are built by 35-year-old marketers guessing at what 22-year-olds respond to. This is different.
+                        </p>
+                        <p>
+                            I'm 18. I know exactly how Gen Z processes urgency, social proof, and scarcity because I live it. The psychological triggers that work on me work on your customers—not because of theory, but because we share the same digital native wiring.
+                        </p>
+                        <p>
+                            Rapid deployment. No calls, no proposals, no endless revision cycles. Just infrastructure that goes live and starts recovering revenue while you focus on product.
+                        </p>
+                    </div>
+                    <div class="principles-list-wrapper">
+                        <ul class="principles-list">
+                            <li>
+                                <div class="principle-title">Native Psychology</div>
+                                <div class="principle-desc">Built by Gen Z, for Gen Z—not a 35-year-old's guess at what works</div>
+                            </li>
+                            <li>
+                                <div class="principle-title">Zero Guesswork</div>
+                                <div class="principle-desc">Tested triggers, proven frameworks, no theory</div>
+                            </li>
+                            <li>
+                                <div class="principle-title">48-Hour Deploy</div>
+                                <div class="principle-desc">Emergency protocol live in 2 days, full systems in 5-7</div>
+                            </li>
+                            <li>
+                                <div class="principle-title">Silent Operation</div>
+                                <div class="principle-desc">No calls, no meetings—just infrastructure that converts</div>
+                            </li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- CONTACT FORM -->
+        <section class="section" id="contact">
+            <div class="container">
+                <div class="section-header" style="text-align: center; max-width: 640px; margin: 0 auto 64px;">
+                    <div class="section-label">Secure Channel</div>
+                    <h2 class="section-title">Request Access</h2>
+                </div>
+                
+                <!-- Hidden form for Netlify detection -->
+                <form name="contact" netlify netlify-honeypot="bot-field" hidden>
+                    <input type="text" name="brand-url" />
+                    <input type="email" name="email" />
+                    <input type="text" name="revenue" />
+                    <textarea name="system"></textarea>
+                </form>
+                
+                <!-- Actual visible form -->
+                <form class="access-form" name="contact" method="POST" data-netlify="true" netlify-honeypot="bot-field">
+                    <input type="hidden" name="form-name" value="contact">
+                    <p style="display: none;">
+                        <label>Don't fill this out if you're human: <input name="bot-field" /></label>
+                    </p>
+                    <div class="form-group">
+                        <label class="form-label">Brand URL</label>
+                        <input type="text" name="brand-url" class="form-input" placeholder="yourbrand.com" required>
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">Contact Email</label>
+                        <input type="email" name="email" class="form-input" placeholder="you@yourbrand.com" required>
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">Monthly Revenue</label>
+                        <input type="text" name="revenue" class="form-input" placeholder="€XX,XXX" required>
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">Required System</label>
+                        <textarea name="system" class="form-textarea" placeholder="Emergency Protocol / Foundation / Total Control / Unsure" required></textarea>
+                    </div>
+                    <button type="submit" class="form-submit">Submit Request</button>
+                </form>
+                <p style="text-align: center; margin-top: 32px; font-size: 12px; color: var(--text-2); letter-spacing: 0.06em;">
+                    Response: 6-12 hours · Analysis complete · Build starts immediately after deposit
+                </p>
+            </div>
+        </section>
+
+        <!-- FOOTER -->
+        <footer>
+            <div class="container">
+                <div class="footer-content">
+                    <div class="footer-wordmark">KV — Revenue Infrastructure</div>
+                    <div class="footer-links">
+                        <a href="#intel">Intelligence</a>
+                        <a href="#systems">Systems</a>
+                        <a href="#contact">Contact</a>
+                    </div>
+                </div>
+                <div class="footer-bottom">
+                    Infrastructure operator · Gen Z native · Built while you sleep
+                </div>
+            </div>
+        </footer>
+    </div>
+
+    <!-- NOTIFICATION MODAL -->
+    <div class="notification-overlay" id="notificationOverlay">
+        <div class="notification-modal">
+            <div class="notification-icon">✓</div>
+            <h3 class="notification-title">Analysis Initiated</h3>
+            <p class="notification-message">Response within 6-12 hours with diagnostics · Build starts immediately after deposit</p>
+            <button class="notification-button" onclick="closeNotification()">Understood</button>
+        </div>
+    </div>
+
+    <script>
+        // Topbar scroll effect
+        const topbar = document.getElementById('topbar');
+        let ticking = false;
+
+        function updateTopbar() {
+            const y = window.pageYOffset || 0;
+            if (y > 100) topbar.classList.add('scrolled');
+            else topbar.classList.remove('scrolled');
+            ticking = false;
+        }
+
+        window.addEventListener('scroll', () => {
+            if (!ticking) {
+                window.requestAnimationFrame(updateTopbar);
+                ticking = true;
+            }
+        }, { passive: true });
+
+        updateTopbar();
+
+        // Form submission
+        const form = document.querySelector('.access-form');
+        const notificationOverlay = document.getElementById('notificationOverlay');
+        
+        if (form) {
+            form.addEventListener('submit', async (e) => {
+                e.preventDefault();
+                
+                const formData = new FormData(form);
+                
+                try {
+                    await fetch('/', {
+                        method: 'POST',
+                        headers: { "Content-Type": "application/x-www-form-urlencoded" },
+                        body: new URLSearchParams(formData).toString()
+                    });
+                    
+                    notificationOverlay.classList.add('active');
+                    form.reset();
+                } catch (error) {
+                    console.error('Form submission error:', error);
+                    notificationOverlay.classList.add('active');
+                }
+            });
+        }
+
+        function closeNotification() {
+            notificationOverlay.classList.remove('active');
+        }
+
+        notificationOverlay.addEventListener('click', (e) => {
+            if (e.target === notificationOverlay) {
+                closeNotification();
+            }
+        });
+    </script>
+</body>
+</html>
